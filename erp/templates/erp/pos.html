@@ -1,0 +1,57 @@
+{% extends "erp/base.html" %}
+{% block title %}點單 - 手搖飲店 ERP{% endblock %}
+{% block content %}
+{% if low_count and can_inventory %}
+  <div class="msg warn">⚠️ 有 {{ low_count }} 項原物料低於安全庫存，請到「生產・庫存」叫貨</div>
+{% endif %}
+<div class="grid">
+  <section class="card">
+    <h2>🧾 POS 點單</h2>
+    <form method="post">{% csrf_token %}
+      <table>
+        <tr><th>飲品</th><th>單價</th><th>杯數</th></tr>
+        {% for p in products %}
+        <tr>
+          <td>{{ p.name }}</td>
+          <td>${{ p.price }}</td>
+          <td><input type="number" name="qty_{{ p.id }}" min="0" value="0"></td>
+        </tr>
+        {% endfor %}
+      </table>
+      <p><button class="btn" type="submit">送出訂單</button></p>
+      <p class="muted">送出後會自動：扣除原物料庫存 → 寫入財會銷售收入</p>
+    </form>
+  </section>
+
+  <div>
+    <section class="card">
+      <h2>📊 熱銷排行</h2>
+      {% if rank %}
+        <div class="champ">🏆 目前銷量第一名：<b>{{ rank.0.name }}</b>（{{ rank.0.cups }} 杯）</div>
+        {% for r in rank %}
+        <div class="rank">
+          <span class="no">{{ forloop.counter }}</span>
+          <span>{{ r.name }}</span>
+          <div class="bar"><i style="width: {{ r.pct }}%"></i></div>
+          <b>{{ r.cups }} 杯</b>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="muted">還沒有訂單</p>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      <h2>最近訂單</h2>
+      {% for o in recent %}
+        <p>
+          <b>#{{ o.id }}</b> {{ o.created_at|date:"m/d H:i" }} ・ ${{ o.total }}<br>
+          <span class="muted">{% for it in o.items.all %}{{ it.product.name }}×{{ it.quantity }}{% if not forloop.last %}、{% endif %}{% endfor %}</span>
+        </p>
+      {% empty %}
+        <p class="muted">還沒有訂單</p>
+      {% endfor %}
+    </section>
+  </div>
+</div>
+{% endblock %}

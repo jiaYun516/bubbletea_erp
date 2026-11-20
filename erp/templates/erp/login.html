@@ -1,0 +1,15 @@
+{% extends "erp/base.html" %}
+{% block title %}登入 - 手搖飲店 ERP{% endblock %}
+{% block content %}
+<div class="card login">
+  <h1>🧋 手搖飲店 ERP</h1>
+  <p class="muted">請登入以繼續</p>
+  {% if form.errors %}<div class="msg error">帳號或密碼錯誤</div>{% endif %}
+  <form method="post">{% csrf_token %}
+    <p><label for="id_username">帳號</label>{{ form.username }}</p>
+    <p><label for="id_password">密碼</label>{{ form.password }}</p>
+    <button class="btn" type="submit">登入</button>
+  </form>
+  <p class="muted">示範帳號：boss（店長）、staff（店員）、acct（會計）</p>
+</div>
+{% endblock %}

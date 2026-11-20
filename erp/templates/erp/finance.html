@@ -1,0 +1,30 @@
+{% extends "erp/base.html" %}
+{% block title %}財會 - 手搖飲店 ERP{% endblock %}
+{% block content %}
+<h1>💰 財會・營收與成本</h1>
+<div class="cards">
+  <div class="stat"><small>銷售營收</small><b>${{ income }}</b></div>
+  <div class="stat"><small>進貨成本</small><b>${{ purchase }}</b></div>
+  <div class="stat hl"><small>總毛利（營收 − 進貨成本）</small><b class="{% if gross < 0 %}neg{% endif %}">${{ gross }}</b></div>
+  <div class="stat"><small>薪資支出</small><b>${{ salary }}</b></div>
+  <div class="stat hl"><small>淨利（毛利 − 薪資）</small><b class="{% if net < 0 %}neg{% endif %}">${{ net }}</b></div>
+</div>
+
+<section class="card">
+  <h2>最近 20 筆收支</h2>
+  <table>
+    <tr><th>日期</th><th>類型</th><th>科目</th><th>金額</th><th>說明</th></tr>
+    {% for t in recent %}
+    <tr>
+      <td>{{ t.date|date:"Y-m-d" }}</td>
+      <td>{{ t.get_kind_display }}</td>
+      <td>{{ t.category }}</td>
+      <td class="{% if t.kind == 'expense' %}neg{% endif %}">{% if t.kind == 'expense' %}-{% else %}+{% endif %}${{ t.amount }}</td>
+      <td class="muted">{{ t.note }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5" class="muted">還沒有收支紀錄</td></tr>
+    {% endfor %}
+  </table>
+</section>
+{% endblock %}

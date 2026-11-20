@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}手搖飲店 ERP{% endblock %}</title>
+<style>
+  :root { --bg:#f6f3ee; --card:#fff; --ink:#2b2420; --muted:#8a7f76; --brand:#b4552d; --line:#e7e0d6; --ok:#2f8f5b; --bad:#c0392b; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,"Noto Sans TC","Microsoft JhengHei",sans-serif; }
+  header { background:var(--ink); color:#fff; display:flex; align-items:center; gap:20px; padding:10px 24px; flex-wrap:wrap; }
+  .brand { font-weight:700; font-size:18px; }
+  header nav { display:flex; gap:6px; flex:1; flex-wrap:wrap; }
+  header nav a { color:#e9dfd3; text-decoration:none; padding:6px 12px; border-radius:6px; }
+  header nav a:hover { background:#4a3f38; }
+  .who { font-size:14px; color:#d9cfc3; display:flex; align-items:center; gap:10px; }
+  .who form { margin:0; }
+  .who button { background:none; border:1px solid #6b5f56; color:#e9dfd3; padding:4px 10px; border-radius:6px; cursor:pointer; }
+  main { max-width:1100px; margin:24px auto; padding:0 16px; }
+  .grid { display:grid; grid-template-columns:1.2fr 1fr; gap:16px; align-items:start; }
+  @media (max-width:800px) { .grid { grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin-bottom:16px; }
+  h1,h2 { margin:0 0 12px; } h2 { font-size:18px; }
+  table { width:100%; border-collapse:collapse; }
+  th,td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); font-size:15px; }
+  th { color:var(--muted); font-weight:500; font-size:13px; }
+  input[type=number], input[type=text], input[type=password] { padding:6px 8px; border:1px solid var(--line); border-radius:6px; font-size:15px; width:90px; }
+  .btn { background:var(--brand); color:#fff; border:0; padding:9px 18px; border-radius:8px; font-size:15px; cursor:pointer; }
+  .btn.small { padding:5px 12px; font-size:13px; }
+  .btn:disabled { background:#cfc6bb; cursor:not-allowed; }
+  .msg { padding:10px 14px; border-radius:8px; margin-bottom:12px; background:#e8f4ec; color:#1f6b42; }
+  .msg.error { background:#fbe9e7; color:#a32a1c; }
+  .msg.warn { background:#fff3d6; color:#8a5a00; }
+  .badge { padding:2px 10px; border-radius:999px; font-size:13px; }
+  .badge.ok { background:#e8f4ec; color:var(--ok); }
+  .badge.low { background:#fbe9e7; color:var(--bad); font-weight:600; }
+  tr.low td { background:#fff5f3; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px; }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .stat small { color:var(--muted); display:block; margin-bottom:4px; }
+  .stat b { font-size:24px; }
+  .stat.hl b { color:var(--brand); }
+  .neg { color:var(--bad); }
+  .rank { display:grid; grid-template-columns:24px 110px 1fr 60px; gap:8px; align-items:center; margin:8px 0; font-size:14px; }
+  .rank .no { color:var(--muted); }
+  .rank:first-of-type .no { color:var(--brand); font-weight:700; }
+  .bar { background:#f0e9df; border-radius:6px; height:12px; overflow:hidden; }
+  .bar i { display:block; height:100%; background:var(--brand); }
+  .champ { background:#fff3e8; border:1px solid #f0d3bb; border-radius:8px; padding:10px 14px; margin-bottom:10px; }
+  .muted { color:var(--muted); font-size:13px; }
+  form.inline { display:inline-flex; gap:6px; align-items:center; margin:0; }
+  .login { max-width:340px; margin:80px auto; }
+  .login p { display:flex; flex-direction:column; gap:4px; margin:10px 0; }
+  .login input { width:100%; }
+</style>
+</head>
+<body>
+{% if user.is_authenticated %}
+<header>
+  <span class="brand">🧋 手搖飲店 ERP</span>
+  <nav>
+    <a href="{% url 'pos' %}">點單・行銷</a>
+    {% if can_inventory %}<a href="{% url 'inventory' %}">生產・庫存</a>{% endif %}
+    {% if can_finance %}<a href="{% url 'finance' %}">財會</a>{% endif %}
+    {% if can_hr %}<a href="{% url 'hr' %}">人資</a>{% endif %}
+    {% if user.is_superuser %}<a href="/admin/">後台管理</a>{% endif %}
+  </nav>
+  <div class="who">
+    {{ user.username }}（{{ role_label }}）
+    <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">登出</button></form>
+  </div>
+</header>
+{% endif %}
+<main>
+  {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

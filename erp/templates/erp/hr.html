@@ -1,0 +1,36 @@
+{% extends "erp/base.html" %}
+{% block title %}人資 - 手搖飲店 ERP{% endblock %}
+{% block content %}
+<h1>👥 人資・排班與薪資（{{ month }}）</h1>
+<section class="card">
+  <table>
+    <tr><th>姓名</th><th>職稱</th><th>薪資類型</th><th>時薪</th><th>本月工時</th><th>本月應發</th><th>狀態</th></tr>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.e.name }}</td>
+      <td>{{ r.e.title }}</td>
+      <td>{{ r.e.get_pay_type_display }}</td>
+      <td>{% if r.e.pay_type == "hourly" %}${{ r.e.hourly_wage }}{% else %}—{% endif %}</td>
+      <td>
+        {% if r.e.pay_type == "hourly" %}
+        <form method="post" class="inline">{% csrf_token %}
+          <input type="hidden" name="action" value="hours">
+          <input type="hidden" name="emp" value="{{ r.e.id }}">
+          <input type="number" name="hours" step="0.5" min="0" value="{{ r.e.hours|stringformat:'s' }}">
+          <button class="btn small" type="submit">更新</button>
+        </form>
+        {% else %}—{% endif %}
+      </td>
+      <td><b>${{ r.pay }}</b></td>
+      <td>{% if r.settled %}<span class="badge ok">已結算</span>{% else %}<span class="muted">未結算</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p>本月合計：<b>${{ total }}</b></p>
+  <form method="post">{% csrf_token %}
+    <input type="hidden" name="action" value="settle">
+    <button class="btn" type="submit" {% if all_settled %}disabled{% endif %}>結算本月薪資</button>
+    <span class="muted">　按下後會為每位員工產生薪資紀錄，並把薪資支出寫入財會</span>
+  </form>
+</section>
+{% endblock %}

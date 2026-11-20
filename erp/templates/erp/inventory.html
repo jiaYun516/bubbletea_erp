@@ -1,0 +1,37 @@
+{% extends "erp/base.html" %}
+{% block title %}庫存 - 手搖飲店 ERP{% endblock %}
+{% block content %}
+<h1>📦 生產製造・原物料庫存</h1>
+{% if low_count %}
+  <div class="msg warn">⚠️ {{ low_count }} 項原物料低於安全庫存，請盡快叫貨</div>
+{% endif %}
+<section class="card">
+  <table>
+    <tr>
+      <th>原物料</th><th>目前庫存</th><th>安全庫存</th><th>狀態</th>
+      <th>叫貨量</th><th>進貨單價</th><th></th>
+    </tr>
+    {% for i in ingredients %}
+    <tr class="{% if i.is_low %}low{% endif %}">
+      <td>{{ i.name }}</td>
+      <td>{{ i.stock|floatformat:0 }} {{ i.unit }}</td>
+      <td>{{ i.safety_stock|floatformat:0 }} {{ i.unit }}</td>
+      <td>
+        {% if i.is_low %}<span class="badge low">🔴 需叫貨</span>
+        {% else %}<span class="badge ok">🟢 正常</span>{% endif %}
+      </td>
+      <td>{{ i.reorder_qty|floatformat:0 }} {{ i.unit }}</td>
+      <td>${{ i.unit_cost }}</td>
+      <td>
+        {% if is_boss %}
+        <form method="post" action="{% url 'restock' i.id %}" class="inline">{% csrf_token %}
+          <button class="btn small" type="submit">叫貨</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% if not is_boss %}<p class="muted">叫貨需要店長權限</p>{% endif %}
+</section>
+{% endblock %}
